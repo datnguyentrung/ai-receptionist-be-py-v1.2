@@ -1,0 +1,44 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.repositories.user_repo import UserRepository
+from app.models.user import User
+from uuid import UUID
+import numpy as np
+
+from app.utils.insightface_utils import get_face_embedding
+
+
+class UserService:
+    def __init__(self, session: AsyncSession):
+        self.user_repo = UserRepository(session)
+
+    async def get_user_by_id(self, user_id: UUID) -> User:
+        return await self.user_repo.get_user_by_id(user_id)
+
+    async def get_user_by_national_code(self, national_code: str) -> User:
+        return await self.user_repo.get_user_by_national_code(national_code)
+
+    async def create_user(self, user: User) -> User:
+        return await self.user_repo.create_user(user)
+
+
+    async def update_user(self, user_id: UUID, **kwargs) -> User:
+        return await self.user_repo.update_user(user_id, **kwargs)
+
+    async def update_user_face_embedding(self, user_id:UUID, image_np: np.ndarray) -> bool:
+        """
+        Nhận mảng ảnh, trích xuất khuôn mặt và lưu vào Database.
+        """
+        # 1. Gọi AI để lấy vector 512 chiều
+        embedding = get_face_embedding(image_np)
+
+        if embedding is None:
+            # Bắn lỗi nếu ảnh mờ, bị che mặt hoặc không có người
+            raise ValueError("Không tìm thấy khuôn mặt trong ảnh, vui lòng thử ảnh khác.")
+
+        # 2. Gọi Repository để lưu vector này xuống Database
+        success = await self.user_repo.update_face_embedding(user_id, embedding)
+
+        if not success:
+            raise ValueError("Không tìm thấy thông tin võ sinh trong hệ thống.")
+
+        return True
