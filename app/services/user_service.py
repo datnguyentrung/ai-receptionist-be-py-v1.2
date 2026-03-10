@@ -4,6 +4,7 @@ from app.models.user import User
 from uuid import UUID
 import numpy as np
 
+from app.schemas.user import UserResponse, UserInfo, UserProfile
 from app.utils.insightface_utils import get_face_embedding
 
 
@@ -43,7 +44,7 @@ class UserService:
 
         return True
 
-    async def check_in_by_face(self, image_np):
+    async def check_in_by_face(self, image_np) -> UserResponse:
         """
         Nhận mảng ảnh, trích xuất khuôn mặt và so sánh với database để điểm danh.
         Trả về thông tin người dùng nếu tìm thấy, ngược lại trả về lỗi.
@@ -58,8 +59,19 @@ class UserService:
         if user is None:
             raise ValueError("Không tìm thấy thông tin võ sinh trong hệ thống.")
 
-        return {
-            "id": str(user.user_id),
-            "name": user.full_name,
-            "national_code": user.birth_date
-        }
+        # Chuyển đổi User model thành UserResponse schema để trả về cho FE
+        user_response = UserResponse(
+            user_info=UserInfo(
+                user_id=str(user.user_id),
+                role_id=user.role_code
+            ),
+            user_profile=UserProfile(
+                birth_date=user.birth_date,
+                is_active=user.status,
+                name=user.full_name,
+                phone=user.phone_number,
+                belt=user.belt
+            )
+        )
+
+        return user_response

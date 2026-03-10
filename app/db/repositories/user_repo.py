@@ -43,7 +43,7 @@ class UserRepository:
         updated_id = result.scalar_one_or_none()
         return updated_id is not None
 
-    async def find_nearest_user_by_embedding(self, embedding_vector: list[float], threshold=0.6) -> User | None:
+    async def find_nearest_user_by_embedding(self, embedding_vector: list[float], threshold=0.5) -> User | None:
         """
         Tìm người dùng có khuôn mặt khớp nhất, lọc ngưỡng trực tiếp bằng pgvector.
 

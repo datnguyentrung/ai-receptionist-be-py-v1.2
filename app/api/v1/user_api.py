@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 
 from app.db.session import get_db
+from app.schemas.user import UserResponse
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 async def face_check_in(
         file: UploadFile = File(...),  # Nhận file từ Form-Data của FE
         db: AsyncSession = Depends(get_db)
-):
+) -> UserResponse:
     # 1. Đọc dữ liệu thô (bytes) từ file gửi lên
     contents = await file.read()
 
@@ -29,7 +30,7 @@ async def face_check_in(
 
     try:
         user_info = await user_service.check_in_by_face(image_np)
-        return {"status": "success", "message": "Check-in thành công!", "user_info": user_info}
+        return user_info.model_dump(by_alias=True)  # Trả về JSON với camelCase
     except ValueError as e:
         # Bắt lỗi từ Service (ví dụ: Không tìm thấy mặt hoặc không khớp) và trả về HTTP 400
         raise HTTPException(status_code=400, detail=str(e))
