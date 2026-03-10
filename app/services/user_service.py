@@ -42,3 +42,24 @@ class UserService:
             raise ValueError("Không tìm thấy thông tin võ sinh trong hệ thống.")
 
         return True
+
+    async def check_in_by_face(self, image_np):
+        """
+        Nhận mảng ảnh, trích xuất khuôn mặt và so sánh với database để điểm danh.
+        Trả về thông tin người dùng nếu tìm thấy, ngược lại trả về lỗi.
+        """
+        embedding = get_face_embedding(image_np)
+
+        if embedding is None:
+            raise ValueError("Không tìm thấy khuôn mặt trong ảnh, vui lòng thử ảnh khác.")
+
+        user = await self.user_repo.find_nearest_user_by_embedding(embedding)
+
+        if user is None:
+            raise ValueError("Không tìm thấy thông tin võ sinh trong hệ thống.")
+
+        return {
+            "id": str(user.user_id),
+            "name": user.full_name,
+            "national_code": user.birth_date
+        }

@@ -12,7 +12,7 @@ class User(Base):
     __tablename__ = "user"
     __table_args__ = {"schema": "security"}
 
-    user_id = Column(UUID(as_uuid=True), primarykey = True, default = uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), primary_key = True, default = uuid.uuid4)
     national_code = Column(String(50), unique=True, nullable=True)
     full_name = Column(String(100), nullable=False)
     password_hash = Column(String, nullable=False)
