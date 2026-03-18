@@ -1,18 +1,21 @@
 from google import genai
 from google.genai import types
 
-client = genai.Client(api_key="AIzaSyBjbkn9Pi_jIln8djkuamBXHdXiX2UukA0")
+from app.core.config import settings
+
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
 async def generate_text(user_name: str, belt: str) -> str:
+    target_model = 'gemini-3.1-flash-lite-preview'
     prompt = f"Lễ tân AI võ đường. Chào võ sinh '{user_name}', đai '{belt}'. Dưới 15 từ, không ngoặc kép."
 
     try:
         response = await client.aio.models.generate_content(
-            model='gemini-2.5-flash',
+            model=target_model,
             contents=prompt,
             config=types.GenerateContentConfig(
-                temperature=0.7,
+                temperature=0.5,
                 max_output_tokens=30
             )
         )
