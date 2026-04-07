@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import update
+from typing import Literal
 from uuid import UUID
 from app.models.user import User
 
@@ -27,7 +28,7 @@ class UserRepository:
         await self.session.commit()
         return await self.get_user_by_id(user_id)
 
-    async def update_face_embedding(self, user_id : UUID, embedding: list[float]) -> bool:
+    async def update_face_embedding(self, user_id : UUID, embedding: list[float] | None) -> bool:
         """Cập nhật vector khuôn mặt, trả về True nếu thành công"""
         query = (
             update(User)
@@ -42,6 +43,23 @@ class UserRepository:
         # Nếu có ID trả về -> True (Thành công). Nếu ra None -> False (Lỗi/Không tìm thấy)
         updated_id = result.scalar_one_or_none()
         return updated_id is not None
+
+    async def remove_face_embedding(self, user_id: UUID) -> Literal["deleted", "already_empty", "not_found"]:
+        """Xoa face_embedding va tra ve trang thai de tang do ro nghiep vu."""
+        user = await self.get_user_by_id(user_id)
+        if user is None:
+            return "not_found"
+
+        if user.face_embedding is None:
+            return "already_empty"
+
+        await self.session.execute(
+            update(User)
+            .where(User.user_id == user_id)
+            .values(face_embedding=None)
+        )
+        await self.session.commit()
+        return "deleted"
 
     async def find_nearest_user_by_embedding(self, embedding_vector: list[float], threshold=0.5) -> User | None:
         """

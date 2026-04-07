@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+import numpy as np
+from typing import Literal
+from uuid import UUID
+
 from app.db.repositories.user_repo import UserRepository
 from app.models.user import User
-from uuid import UUID
-import numpy as np
-
 from app.schemas.user import UserResponse, UserInfo, UserProfile
 from app.utils.insightface_utils import get_face_embedding
 
@@ -21,11 +22,10 @@ class UserService:
     async def create_user(self, user: User) -> User:
         return await self.user_repo.create_user(user)
 
-
     async def update_user(self, user_id: UUID, **kwargs) -> User:
         return await self.user_repo.update_user(user_id, **kwargs)
 
-    async def update_user_face_embedding(self, user_id:UUID, image_np: np.ndarray) -> bool:
+    async def update_user_face_embedding(self, user_id: UUID, image_np: np.ndarray) -> bool:
         """
         Nhận mảng ảnh, trích xuất khuôn mặt và lưu vào Database.
         """
@@ -75,3 +75,6 @@ class UserService:
         )
 
         return user_response
+
+    async def remove_user_face_embedding(self, user_id: UUID) -> Literal["deleted", "already_empty", "not_found"]:
+        return await self.user_repo.remove_face_embedding(user_id)

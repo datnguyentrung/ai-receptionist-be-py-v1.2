@@ -18,7 +18,7 @@ class TestAttendanceAPI(unittest.TestCase):
 
             # 3. Gửi request test API của bạn (Nhớ đổi URL cho đúng)
             # Giả sử API điểm danh của bạn đang chạy ở cổng 8000
-            url = 'http://localhost:8000/api/v1/users/05824b7a-d636-48e2-8825-9342f4b94b93/face-embedding'
+            url = 'http://localhost:8000/api/v1/users/7fc3acfa-9508-435f-9566-05841490cfa2/face-embedding'
 
             # Bỏ comment 2 dòng dưới nếu API đang chạy để test thật
             response = requests.post(url, files=files)

@@ -1,4 +1,9 @@
-from pydantic_settings import BaseSettings
+from pathlib import Path
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+ENV_FILE = BASE_DIR / ".env"
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Receptionist API"
@@ -9,9 +14,7 @@ class Settings(BaseSettings):
     TELEGRAM_CHAT_ID: str = ""
     NGROK_URL: str = ""
 
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+    model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
 
 # Khởi tạo một biến settings để import dùng ở mọi nơi
 settings = Settings()
