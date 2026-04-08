@@ -2,7 +2,7 @@ import asyncio
 from google import genai
 from app.core.config import settings
 
-client = genai.Client(api_key="AIzaSyBcR50YyUg2PPPY8qTTlRP0CN-_YWB1zDI")
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 async def show_all_models():
     print(f"{'Model Name':<40} | {'Supported Actions'}")

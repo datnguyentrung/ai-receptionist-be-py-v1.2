@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 import logging
 
@@ -20,25 +21,40 @@ async def lifespan(app: FastAPI):
         webhook_url = f"{settings.NGROK_URL}{settings.API_V1}/telegram/webhook"
         set_url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/setWebhook?url={webhook_url}"
 
+        max_retries = 3
+        retry_delay = 5  # giây
+
         async with httpx.AsyncClient() as client:
-            try:
-                resp = await client.get(set_url, timeout=10)
-                resp.raise_for_status()
-                data = resp.json()
-                if data.get("ok"):
-                    print(f"✅ Webhook đã đăng ký: {webhook_url}")
-                else:
-                    print(f"❌ Telegram từ chối Webhook: {data}")
-            except httpx.RequestError as exc:
-                print(f"❌ Lỗi kết nối khi đăng ký Webhook ({type(exc).__name__}): {exc}")
-                print(f"   → Kiểm tra lại NGROK_URL trong .env: {settings.NGROK_URL}")
-            except httpx.HTTPStatusError as exc:
-                print(f"❌ Lỗi HTTP khi đăng ký Webhook: {exc.response.status_code} - {exc.response.text}")
+            for attempt in range(1, max_retries + 1):
+                try:
+                    print(f"🔄 Đang đăng ký Webhook (Lần {attempt}/{max_retries})...")
+                    resp = await client.get(set_url, timeout=10)
+                    resp.raise_for_status()
+                    data = resp.json()
 
-    yield
+                    if data.get("ok"):
+                        print(f"✅ Webhook đã đăng ký thành công: {webhook_url}")
+                        break  # Thoát vòng lặp khi thành công
+                    else:
+                        print(f"❌ Telegram từ chối: {data}")
+                        # Nếu Telegram từ chối (ví dụ sai URL), thường retry cũng không ích gì nên có thể break luôn hoặc đợi retry
+                        break
 
+                except (httpx.RequestError, httpx.HTTPStatusError) as exc:
+                    print(f"❌ Lỗi đăng ký Webhook (Lần {attempt}): {type(exc).__name__}")
+
+                    if attempt < max_retries:
+                        print(f"   → Thử lại sau {retry_delay} giây...")
+                        await asyncio.sleep(retry_delay)
+                    else:
+                        print(f"‼️ Đã thử {max_retries} lần nhưng thất bại. Vui lòng kiểm tra NGROK hoặc Internet.")
+
+    yield  # Server bắt đầu chạy tại đây
+
+    # --- PHẦN ĐÓNG (SHUTDOWN) ---
     from app.services.telegram_service import telegram_client
     await telegram_client.aclose()
+    print("🛑 Đã đóng kết nối Telegram Client.")
 
 
 app = FastAPI(

@@ -10,7 +10,7 @@ from app.schemas.student_attendance import StudentAttendanceResponse
 from app.utils.load_instruction_from_file import load_instruction_from_file
 
 # Model hợp lệ
-MODEL_ID = "gemini-2.5-flash"
+MODEL_ID = "gemini-3.1-flash-lite-preview"
 
 
 # ==========================================

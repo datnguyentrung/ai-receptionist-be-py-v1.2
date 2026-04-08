@@ -1,7 +1,8 @@
 import base64
+import json
 
 import httpx
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 import numpy as np
@@ -11,6 +12,7 @@ import os
 from dotenv import load_dotenv
 
 from app.schemas.student_attendance import StudentAttendanceResponse
+from app.services.telegram_service import send_checkin_alert
 
 load_dotenv()
 
@@ -29,10 +31,12 @@ headers = {
 
 @router.post("/check-in")
 async def face_check_in(
+        background_tasks: BackgroundTasks,
         file: UploadFile = File(...),  # Nhận file từ Form-Data của FE
         db: AsyncSession = Depends(get_db)
 ):
     # 1. Đọc dữ liệu thô (bytes) từ file gửi lên
+    global record_obj
     contents = await file.read()
 
     # 2. Chuyển đổi bytes sang Numpy Array để OpenCV đọc được
@@ -100,10 +104,18 @@ async def face_check_in(
     # 2. Mã hóa bytes âm thanh sang chuỗi Base64
     audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
 
-    # 3. Chuẩn bị JSON Response: Gộp chung thông tin user và file audio
-    response_data = user_info.model_dump(by_alias=True)  # Dữ liệu user cũ
-    response_data["audio_base64"] = audio_base64  # Kẹp thêm audio vào
+    # 3. Chuẩn bị JSON Response
+    response_data = user_info.model_dump(by_alias=True)
+    response_data["audio_base64"] = audio_base64
 
+    # 4. XỬ LÝ BACKGROUND TASK GỬI TELEGRAM
+    background_tasks.add_task(
+        send_checkin_alert,
+        record_obj,
+        note=text_to_speech
+    )
+
+    # 5. Trả về ngay lập tức cho Frontend
     return response_data
 
 @router.post("/{user_id}/face-embedding")
