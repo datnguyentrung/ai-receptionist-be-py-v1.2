@@ -3,11 +3,13 @@ from contextlib import asynccontextmanager
 import logging
 
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import api_router
 from app.core.config import settings
+from app.exceptions.app_exception import AppException
+from fastapi.responses import JSONResponse
 
 logging.basicConfig(level=logging.INFO)
 
@@ -73,6 +75,25 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1)
 
+
+@app.exception_handler(AppException)
+async def app_exception_handler(request: Request, exc: AppException):
+    """
+    Tự động bắt mọi lỗi AppException văng ra trong code
+    và trả về định dạng JSON chuẩn.
+    """
+    error_content = {
+        "status_code": exc.error_code.status_code,
+        "message": exc.error_code.message
+    }
+
+    if exc.detail_message:
+        error_content["detail"] = exc.detail_message
+
+    return JSONResponse(
+        status_code=exc.error_code.status_code,
+        content=error_content,
+    )
 
 @app.get("/", tags=["Health"])
 async def root():

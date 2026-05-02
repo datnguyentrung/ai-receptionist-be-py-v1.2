@@ -6,7 +6,6 @@ from datetime import date
 from pydantic.alias_generators import to_camel
 
 from app.enums.operation_enum import AttendanceStatus, EvaluationStatus
-from app.schemas.tuition_payment import TuitionStatusResponse
 
 
 class StudentAttendanceResponse(BaseModel):
@@ -17,17 +16,15 @@ class StudentAttendanceResponse(BaseModel):
     student_id: UUID
     student_name: str
 
-    tuition_status: TuitionStatusResponse | None = None
-
     class_schedule_id: str
     session_date: date
-    attendance_status: str  # Hoặc dùng Enum AttendanceStatus của bạn
+    attendance_status: AttendanceStatus  # Hoặc dùng Enum AttendanceStatus của bạn
 
     # Các field có thể null từ Java
     check_in_time: datetime | None = None
     recorded_by_coach_name: str | None = None  # Java có trả về cái này
 
-    evaluation_status: str | None = None
+    evaluation_status: EvaluationStatus | None = None
     note: str | None = None
     evaluated_by_coach_name: str | None = None
 

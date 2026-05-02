@@ -2,8 +2,7 @@
 from fastapi import APIRouter
 
 # Import các router
-from .user_api import router as users_router
-from .tts_api import router as tts_router
+from .student_api import router as users_router
 from .telegram_api import router as telegram_router
 
 api_router = APIRouter()
@@ -11,7 +10,6 @@ api_router = APIRouter()
 # Nhúng thẳng router vào, KHÔNG truyền thêm prefix hay tags nữa
 # vì bên trong users.py đã khai báo đầy đủ rồi!
 api_router.include_router(users_router)
-api_router.include_router(tts_router)
 api_router.include_router(telegram_router)
 
 # Sau này có thêm file attendance hay classes, bạn cũng làm tương tự:

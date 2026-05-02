@@ -21,3 +21,8 @@ class Belt(str, Enum):
     D8 = "D8"
     D9 = "D9"
     D10 = "D10"
+
+class StudentStatus(str, Enum):
+    ACTIVE = "ACTIVE"  # HOẠT ĐỘNG
+    RESERVED = "RESERVED"  # TẠM NGƯNG
+    DROPPED = "DROPPED"  # THOÁT HỌC

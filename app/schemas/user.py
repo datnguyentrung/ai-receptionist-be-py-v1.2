@@ -3,8 +3,9 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
+from app.enums.core_enum import Belt
 from app.enums.security_enum import UserStatus
-from app.models.user import Belt
+
 
 # # 1. Schema Cơ bản (Chứa các trường dùng chung)
 # class UserBase(BaseModel):
