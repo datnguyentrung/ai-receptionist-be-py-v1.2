@@ -21,7 +21,7 @@ class ActiveClassStatus(BaseModel):
     enrollment_id: UUID
     schedule_id: str
     paid: bool
-    amount_allocated: decimal.Decimal
+    amount_allocated: decimal.Decimal | None = None
 
 class TuitionStatusResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
@@ -32,4 +32,4 @@ class TuitionStatusResponse(BaseModel):
     has_paid_current_month: bool
     current_month: int
     current_year: int
-    active_classes: list[ActiveClassStatus]  # Danh sách tên lớp đang học
+    active_classes: list[ActiveClassStatus]

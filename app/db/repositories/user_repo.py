@@ -61,7 +61,7 @@ class UserRepository:
         await self.session.commit()
         return "deleted"
 
-    async def find_nearest_user_by_embedding(self, embedding_vector: list[float], threshold=0.5) -> User | None:
+    async def find_nearest_user_by_embedding(self, embedding_vector: list[float], threshold=0.7) -> User | None:
         """
         Tìm người dùng có khuôn mặt khớp nhất, lọc ngưỡng trực tiếp bằng pgvector.
 
