@@ -23,3 +23,5 @@ python-dotenv~=1.1.0
 
 # Google Gemini (AI content generation)
 google-genai~=1.14.0
+
+python-multipart
