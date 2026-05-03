@@ -3,7 +3,7 @@ FROM python:3.10-slim
 
 # ---- Set environment variables ----
 # Sửa lại đường dẫn lưu model vào thư mục home của user mới
-ENV INSIGHTFACE_HOME=/home/user/app/insightface_data \
+ENV INSIGHTFACE_HOME=/home/user/.insightface \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=7860
@@ -38,7 +38,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY --chown=user . .
 
 # ---- Download InsightFace model ----
-RUN python download_model.py
+RUN python download_model.py && ls -R /home/user/.insightface
 
 # ---- Expose port ----
 # HF mặc định dùng 7860, không dùng 8000
