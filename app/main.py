@@ -106,6 +106,14 @@ async def app_exception_handler(request: Request, exc: AppException):
         content=error_content,
     )
 
+@app.get("/", tags=["Root"])
+async def root_check():
+    """
+    Route này sinh ra chỉ để 'dỗ' hệ thống giám sát của Hugging Face.
+    Trả về 200 OK để nó biết container vẫn đang sống nhăn răng.
+    """
+    return {"message": "Hugging Face Space is running smoothly!"}
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """
