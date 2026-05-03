@@ -1,0 +1,14 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.gitignore
+.env
+.venv
+venv
+tests/
+test_main.http
+*.md
+.vscode/
+.idea/
+instruction/
