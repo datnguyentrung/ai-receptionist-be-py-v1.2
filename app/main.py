@@ -1,13 +1,14 @@
 import asyncio
 from contextlib import asynccontextmanager
 import logging
-
+from sqlalchemy import text
 import httpx
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import api_router
 from app.core.config import settings
+from app.db.session import engine
 from app.exceptions.app_exception import AppException
 from fastapi.responses import JSONResponse
 
@@ -16,11 +17,21 @@ logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # --- 1. KIỂM TRA KẾT NỐI DATABASE ---
+    try:
+        print("🔄 Đang kiểm tra kết nối Database...")
+        async with engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
+        print("✅ Kết nối Database Supabase thành công!")
+    except Exception as e:
+        print(f"❌ LỖI KẾT NỐI DATABASE: {e}")
+        # Nếu muốn server dừng luôn không chạy nữa nếu lỗi DB, bạn có thể raise lỗi ở đây
+
     # Đăng ký Telegram Webhook khi server khởi động
-    if not settings.NGROK_URL:
-        print("⚠️  NGROK_URL chưa được cấu hình — bỏ qua đăng ký Webhook.")
+    if not settings.SERVER_PUBLIC_URL:
+        print("⚠️  SERVER_PUBLIC_URL chưa được cấu hình — bỏ qua đăng ký Webhook.")
     else:
-        webhook_url = f"{settings.NGROK_URL}{settings.API_V1}/telegram/webhook"
+        webhook_url = f"{settings.SERVER_PUBLIC_URL}{settings.API_V1}/telegram/webhook"
         set_url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/setWebhook?url={webhook_url}"
 
         max_retries = 3

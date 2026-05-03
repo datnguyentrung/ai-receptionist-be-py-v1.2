@@ -33,7 +33,7 @@
   - `send_checkin_alert(...)`
   - `send_welcome_message(...)`
 - Tao webhook endpoint `POST /api/v1/telegram/webhook` trong `app/api/v1/telegram_api.py`.
-- Cau hinh dang ky webhook luc khoi dong app trong `app/main.py` (lifespan + `NGROK_URL`).
+- Cau hinh dang ky webhook luc khoi dong app trong `app/main.py` (lifespan + `SERVER_PUBLIC_URL`).
 - Tich hop LLM cho muc dich tao cau chao real-time trong luong TTS.
 
 ### Su thay doi trong tuan

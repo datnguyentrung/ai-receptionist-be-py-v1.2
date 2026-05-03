@@ -1,5 +1,13 @@
+import os
+
 import numpy as np
 from insightface.app import FaceAnalysis
+
+# Đồng bộ INSIGHTFACE_HOME với Docker build (download_model.py)
+if not os.environ.get("INSIGHTFACE_HOME"):
+    os.environ["INSIGHTFACE_HOME"] = os.path.join(
+        os.path.dirname(__file__), "..", "..", "insightface_data"
+    )
 
 def initialize_cpu_face_app():
     """Khởi tạo model nhận diện khuôn mặt tối ưu cho CPU"""

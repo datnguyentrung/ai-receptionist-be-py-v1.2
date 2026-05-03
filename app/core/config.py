@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_CHAT_ID: str = ""
-    NGROK_URL: str = ""
+    SERVER_PUBLIC_URL: str = ""
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
 
