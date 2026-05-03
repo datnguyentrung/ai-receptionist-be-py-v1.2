@@ -106,6 +106,24 @@ async def app_exception_handler(request: Request, exc: AppException):
         content=error_content,
     )
 
-@app.get("/", tags=["Health"])
-async def root():
-    return {"message": "AI Receptionist API is running."}
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """
+    Tương đương với Actuator Health bên Java Spring Boot.
+    Kiểm tra xem Database có thực sự kết nối được không.
+    """
+    try:
+        # Thực hiện một truy vấn siêu nhẹ để check DB
+        async with engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
+        return {
+            "status": "UP",
+            "database": "CONNECTED",
+            "version": settings.PROJECT_NAME
+        }
+    except Exception as e:
+        # Trả về lỗi 503 nếu DB có vấn đề để hệ thống giám sát biết mà restart app
+        return JSONResponse(
+            status_code=503,
+            content={"status": "DOWN", "database": "ERROR", "detail": str(e)}
+        )
